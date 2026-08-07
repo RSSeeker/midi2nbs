@@ -37,7 +37,7 @@ midi2nbs.exe song.mid 15 auto    # 15 tick/s，按轨道分配乐器
 midi2nbs.exe song.mid 10 5       # 10 tick/s，固定乐器 5
 ```
 
-自动化脚本里可以加 `--no-pause` 跳过结尾的“按回车键退出”。
+> 默认转换完窗口会**自动关闭**；如果想看完结果再关闭，加 `--pause` 参数（例如从 cmd 里运行 `midi2nbs.exe song.mid --pause`）。自动化脚本无需额外参数。
 
 ## 转换规则
 

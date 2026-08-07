@@ -834,7 +834,7 @@ int main(int argc, char **argv)
     int nbsTempo = 10;
     int mode = 0;        /* 0=pitch 1=auto 2=fixed */
     int fixedInst = -1;
-    int noPause = 0;
+    int pauseMode = 0;   /* 默认转换完自动关闭窗口；--pause 可保留窗口 */
 
     if (argc < 2) {
         fprintf(stderr, "用法: 把 .mid 文件拖到本程序上，或运行:\n");
@@ -864,9 +864,9 @@ int main(int argc, char **argv)
         } else if (strcmp(argv[i], "auto") == 0) {
             mode = 1;
             fixedInst = -1;
-        } else if (strcmp(argv[i], "--no-pause") == 0 ||
-                   strcmp(argv[i], "--nopause") == 0) {
-            noPause = 1;
+        } else if (strcmp(argv[i], "--pause") == 0 ||
+                   strcmp(argv[i], "--wait") == 0) {
+            pauseMode = 1;
         }
     }
 
@@ -880,7 +880,7 @@ int main(int argc, char **argv)
         if (!convert_file(inputs[i], nbsTempo, mode, fixedInst)) allOk = 0;
     }
 
-    if (!noPause && IS_TTY(stdin) && IS_TTY(stdout)) {
+    if (pauseMode && IS_TTY(stdin) && IS_TTY(stdout)) {
         printf("\n按回车键退出...");
         fflush(stdout);
         getchar();
