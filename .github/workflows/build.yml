@@ -1,0 +1,90 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Windows (${{ matrix.arch }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - arch: x64
+            cc: x86_64-w64-mingw32-gcc
+            artifact: midi2nbs-x64.exe
+            zip: midi2nbs-windows-x64.zip
+          - arch: x86
+            cc: i686-w64-mingw32-gcc
+            artifact: midi2nbs-x86.exe
+            zip: midi2nbs-windows-x86.zip
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install MinGW cross compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-mingw-w64-x86-64 gcc-mingw-w64-i686
+
+      - name: Compile
+        run: |
+          ${{ matrix.cc }} -O2 -std=c11 -static -s -o ${{ matrix.artifact }} src/midi2nbs.c -lm
+
+      - name: Package
+        run: |
+          mkdir -p dist
+          cp ${{ matrix.artifact }} dist/
+          cd dist
+          zip ${{ matrix.zip }} ${{ matrix.artifact }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: dist/${{ matrix.zip }}
+
+  release:
+    name: Publish release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Determine tag
+        id: tag
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            TAG="${GITHUB_REF_NAME}"
+            if [[ "${TAG}" == *-* ]]; then
+              PRERELEASE=true
+            else
+              PRERELEASE=false
+            fi
+          else
+            TAG="continuous"
+            PRERELEASE=true
+          fi
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "prerelease=${PRERELEASE}" >> "$GITHUB_OUTPUT"
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: ${{ steps.tag.outputs.tag }}
+          prerelease: ${{ steps.tag.outputs.prerelease }}
+          files: dist/*.zip
+          allow_updates: true
+          generate_release_notes: true
