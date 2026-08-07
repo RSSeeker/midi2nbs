@@ -57,19 +57,3 @@ gcc -O2 -std=c11 -o midi2nbs.exe src/midi2nbs.c -lm
 ```
 
 Linux/macOS 也可以直接编译（`gcc -O2 -std=c11 -o midi2nbs src/midi2nbs.c -lm`）。
-
-## 自动化构建与发布
-
-仓库内置 GitHub Actions（`.github/workflows/build.yml`），每次推送到 `main` 或 `master` 时自动：
-
-1. 用 MinGW-w64 交叉编译 Windows x64 / x86 两个版本的 exe（静态链接，无需安装任何运行库）
-2. 打包成 zip
-3. 发布/更新名为 `continuous` 的 **pre-release**，附件可直接下载
-
-推送形如 `v1.0.0` 的 tag 时，会以该 tag 名创建正式 release；tag 名包含 `-`（如 `v1.0.0-pre.1`）时发布为 pre-release。
-
-也可以在仓库 Actions 页面手动触发 `workflow_dispatch`。
-
-## 测试
-
-开发时以 mcbot 的 Node.js 实现（`midi_common.js` + `@nbsjs/core`）为参考，对多个测试 MIDI 逐字节对比输出，三种模式（pitch / auto / 固定乐器）均完全一致。
