@@ -2,7 +2,7 @@
 
 把 MIDI（`.mid` / `.midi`）文件转换为 Minecraft 音符盒（OpenNBS `.nbs`）文件的纯 C 命令行工具，**零外部依赖**，只依赖 C 标准库。
 
-转换逻辑与 [mcbot-nodejs](https://github.com/RSSeeker/mcbot-nodejs) 的 `scripts/midi2nbs.js` 保持一致，输出为 NBS v6 格式（与 `@nbsjs/core` 逐字节一致）。
+输出为 NBS v6 格式
 
 ## 用法
 
